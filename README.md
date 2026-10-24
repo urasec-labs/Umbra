@@ -1,3 +1,5 @@
+
+⭐ **If you like this project, please consider giving it a star to support young open-source developers!**
 # 🌑 Umbra
 
 [![CI](https://github.com/urasec-labs/Umbra/actions/workflows/ci.yml/badge.svg)](https://github.com/urasec-labs/Umbra/actions/workflows/ci.yml) ![python](https://img.shields.io/badge/python-3.10%2B-blue) ![license](https://img.shields.io/badge/license-MIT-green)
