@@ -1,0 +1,81 @@
+# Umbra default configuration. Copy to config/umbra.yaml and edit; values there override these.
+app:
+  name: Umbra
+  version: "0.1.0"
+  author: "Uras AKAS | urasakas.com"
+  data_dir: data
+  safe_mode: true            # keep intrusive checks off unless you disable it explicitly
+  plugins_dir: plugins       # drop your own Module subclasses here
+
+# ONLY list assets you own or are authorized to monitor.
+scope:
+  domains: []                # e.g. ["example.com"]
+  hosts: []                  # extra hostnames / IPs, e.g. ["203.0.113.10"]
+  paths: []                  # local dirs / git repos scanned for secrets & vulnerable deps
+  exclude: []                # hosts / IPs that must never be touched
+
+policy:
+  allowed_ports: [80, 443]   # anything else that is open becomes a finding
+  host_ports: {}             # per-host override, e.g. {"203.0.113.10": [22, 80, 443]}
+  cert_warn_days: 30
+  cert_critical_days: 7
+  min_tls: "TLSv1.2"
+  required_headers:
+    - strict-transport-security
+    - content-security-policy
+    - x-content-type-options
+    - referrer-policy
+    - permissions-policy
+    - x-frame-options
+
+scan:
+  timeout: 6
+  threads: 32
+  user_agent: "Umbra/0.1 (+https://urasakas.com; defensive-monitoring)"
+  port_mode: connect         # connect | nmap (nmap is used only if installed)
+  ports: [21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 389, 443, 445, 465, 587,
+          993, 995, 1433, 1521, 2049, 2375, 3000, 3306, 3389, 5000, 5432, 5601, 5672,
+          5900, 6379, 8000, 8080, 8443, 8888, 9200, 9300, 11211, 15672, 27017]
+  # Shared CDN edges belong to third parties: never port-scan them.
+  skip_cidrs:
+    - 173.245.48.0/20
+    - 103.21.244.0/22
+    - 103.22.200.0/22
+    - 103.31.4.0/22
+    - 141.101.64.0/18
+    - 108.162.192.0/18
+    - 190.93.240.0/20
+    - 188.114.96.0/20
+    - 197.234.240.0/22
+    - 198.41.128.0/17
+    - 162.158.0.0/15
+    - 104.16.0.0/13
+    - 172.64.0.0/13
+    - 131.0.72.0/22
+  use_crtsh: true
+  wordlist: [www, mail, smtp, imap, vpn, dev, test, staging, stage, api, admin, portal,
+             intranet, git, gitlab, jenkins, grafana, kibana, monitor, ftp, cdn, static,
+             app, beta, old, backup, db, sso, auth, remote]
+  secret_max_bytes: 1000000
+  secret_ignore: [".git", "data", "node_modules", ".venv", "venv", "__pycache__", "dist", "build"]
+
+profiles:
+  quick:   [discovery, tls, headers]
+  full:    [discovery, dns_hygiene, ports, tls, headers, exposure, secrets, ext_tools]
+  monitor: [discovery, ports, tls, secrets]
+  code:    [secrets, ext_tools]
+
+notifications:
+  min_severity: medium       # alert threshold for NEW findings
+  notify_new_assets: true
+  notify_resolved: true
+  slack_webhook: ""          # or env UMBRA_SLACK_WEBHOOK
+  discord_webhook: ""        # or env UMBRA_DISCORD_WEBHOOK
+  telegram_bot_token: ""     # or env UMBRA_TELEGRAM_TOKEN
+  telegram_chat_id: ""       # or env UMBRA_TELEGRAM_CHAT
+  webhook: ""                # generic JSON POST, or env UMBRA_WEBHOOK
+
+report:
+  formats: [html, pdf, json]
+  title: "Umbra Security Posture Report"
+  author: "Uras AKAS | urasakas.com"
